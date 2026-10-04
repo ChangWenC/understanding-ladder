@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习率怎么影响收敛</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --fg: #1d1d1b; --muted: #6b6a66; --line: #e3e0d8; --card: #ffffff;
+    --curve: #8a8780; --path: #d9480f; --ok: #2b8a3e; --warn: #e67700; --bad: #c92a2a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #161615; --fg: #ecebe6; --muted: #a3a29c; --line: #34332f; --card: #1f1f1d;
+      --curve: #7d7b75; --path: #ff8a4c; --ok: #69db7c; --warn: #ffc078; --bad: #ff8787; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.75 -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; line-height: 1.3; margin: 0 0 8px; }
+  h2 { font-size: 18px; margin: 32px 0 8px; }
+  .lead { font-size: 18px; margin: 0 0 24px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .controls { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 14px; color: var(--muted); }
+  label b { color: var(--fg); font-variant-numeric: tabular-nums; font-size: 16px; }
+  input[type=range] { width: 100%; height: 28px; accent-color: var(--path); }
+  .plots { display: grid; grid-template-columns: 3fr 2fr; gap: 12px; }
+  @media (max-width: 600px) { .plots { grid-template-columns: 1fr; } }
+  canvas { width: 100%; height: 260px; display: block; }
+  .cap { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .verdict { margin-top: 12px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); font-weight: 600; }
+  ol, ul { padding-left: 22px; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+  .tries li { margin-bottom: 6px; }
+  .tries button { font: inherit; font-size: 14px; border: 1px solid var(--line); background: transparent; color: var(--path);
+    border-radius: 6px; padding: 0 8px; cursor: pointer; }
+  footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>学习率怎么影响梯度下降的收敛</h1>
+  <p class="lead">学习率太小，走得慢；太大，会来回震荡，甚至越走越远。拖动下面的滑块，亲眼看这三种情况。</p>
+
+  <div class="card">
+    <div class="controls">
+      <label>学习率 η：<b id="etaV"></b>
+        <input id="eta" type="range" min="0.02" max="1.10" step="0.01" value="0.10">
+      </label>
+      <label>起点 x₀：<b id="x0V"></b>
+        <input id="x0" type="range" min="-4" max="4" step="0.1" value="3.5">
+      </label>
+    </div>
+    <div class="plots">
+      <div><canvas id="curve"></canvas><div class="cap">损失函数 f(x) = x²。橙色折线是每一步的位置。</div></div>
+      <div><canvas id="loss"></canvas><div class="cap">每一步的损失 f(x)，共 20 步。</div></div>
+    </div>
+    <div id="verdict" class="verdict"></div>
+  </div>
+
+  <h2>文字解释</h2>
+  <p>梯度下降是一种找最小值的方法。它每一步都做同一件事：沿着下坡方向走一步。</p>
+  <p>这个页面用最简单的损失函数 <code>f(x) = x²</code>。它的最小值在 x = 0。它在 x 处的坡度（梯度）是 <code>2x</code>。</p>
+  <p>每一步的更新规则是：</p>
+  <p><code>新的 x = x − η × 2x = (1 − 2η) × x</code></p>
+  <p>η 就是<b>学习率</b>：每一步沿坡度走多远。上面的式子说明，每走一步，x 都乘以同一个数 <code>(1 − 2η)</code>。所以结果只看这个数：</p>
+  <ul>
+    <li><b>0 &lt; η &lt; 0.5</b>：这个数在 0 和 1 之间。x 每步变小，一直停在同一侧。η 越小，走得越慢。</li>
+    <li><b>η = 0.5</b>：这个数等于 0。一步就到最低点。</li>
+    <li><b>0.5 &lt; η &lt; 1</b>：这个数在 −1 和 0 之间。x 每步跳到另一侧，但跳得越来越近，最后仍然收敛。</li>
+    <li><b>η = 1</b>：这个数等于 −1。x 在两侧来回跳，永远不变近。</li>
+    <li><b>η &gt; 1</b>：这个数小于 −1。x 每步跳得更远，损失越来越大。这叫<b>发散</b>。</li>
+  </ul>
+
+  <h2>试试这样拖</h2>
+  <ol class="tries">
+    <li>把 η 拖到 0.05，数一数 20 步后离最低点还有多远。<button data-eta="0.05">设为 0.05</button></li>
+    <li>把 η 拖到 0.8，看折线怎么在两侧来回跳，但越跳越近。<button data-eta="0.8">设为 0.8</button></li>
+    <li>把 η 拖到 1.05，看损失曲线怎么往上翘。<button data-eta="1.05">设为 1.05</button></li>
+  </ol>
+
+  <h2>需要核对</h2>
+  <ul>
+    <li>这里只有一个参数 x，损失函数是最简单的抛物线。真实模型有上百万个参数，损失曲面更复杂。但「太大会震荡或发散，太小会很慢」这个规律仍然成立。</li>
+    <li>对 <code>f(x) = x²</code>，收敛条件是 0 &lt; η &lt; 1。换一个损失函数，这个界限会变。一般规律是：曲面越陡，能用的学习率越小。</li>
+  </ul>
+
+  <footer>示例由 understanding-ladder skill（第 3 级）生成。单文件，无依赖，可离线打开。</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const N = 20;
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function setup(c) {
+  const r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+  c.width = r.width * d; c.height = r.height * d;
+  const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0);
+  return [g, r.width, r.height];
+}
+function run(eta, x0) {
+  const xs = [x0];
+  for (let i = 0; i < N; i++) xs.push(xs[i] - eta * 2 * xs[i]);
+  return xs;
+}
+function drawCurve(xs) {
+  const [g, w, h] = setup($('curve'));
+  const pad = 24, xr = 5, yr = 25;
+  const X = x => pad + (x + xr) / (2 * xr) * (w - 2 * pad);
+  const Y = y => h - pad - Math.min(y, yr) / yr * (h - 2 * pad);
+  g.clearRect(0, 0, w, h);
+  g.strokeStyle = css('--line'); g.lineWidth = 1;
+  g.beginPath(); g.moveTo(pad, h - pad); g.lineTo(w - pad, h - pad); g.moveTo(X(0), pad); g.lineTo(X(0), h - pad); g.stroke();
+  g.fillStyle = css('--muted'); g.font = '12px sans-serif';
+  g.fillText('x', w - pad + 4, h - pad + 4); g.fillText('f(x)', X(0) + 4, pad + 2);
+  g.strokeStyle = css('--curve'); g.lineWidth = 2; g.beginPath();
+  for (let x = -xr; x <= xr; x += 0.05) { const px = X(x), py = Y(x * x); x === -xr ? g.moveTo(px, py) : g.lineTo(px, py); }
+  g.stroke();
+  g.strokeStyle = css('--path'); g.fillStyle = css('--path'); g.lineWidth = 1.5; g.beginPath();
+  const vis = xs.filter(x => Math.abs(x) <= xr);
+  vis.forEach((x, i) => { const px = X(x), py = Y(x * x); i ? g.lineTo(px, py) : g.moveTo(px, py); });
+  g.stroke();
+  vis.forEach((x, i) => { g.globalAlpha = 1 - i / (vis.length + 4); g.beginPath(); g.arc(X(x), Y(x * x), 4, 0, 7); g.fill(); });
+  g.globalAlpha = 1;
+  if (vis.length < xs.length) { g.fillStyle = css('--bad'); g.fillText('已跑出画面 →', w - pad - 80, pad + 14); }
+}
+function drawLoss(xs) {
+  const [g, w, h] = setup($('loss'));
+  const pad = 24, ys = xs.map(x => x * x), top = Math.max(ys[0], 1e-9) * 1.1;
+  const X = i => pad + i / N * (w - 2 * pad);
+  const Y = y => h - pad - Math.min(y, top) / top * (h - 2 * pad);
+  g.clearRect(0, 0, w, h);
+  g.strokeStyle = css('--line'); g.beginPath(); g.moveTo(pad, pad); g.lineTo(pad, h - pad); g.lineTo(w - pad, h - pad); g.stroke();
+  g.fillStyle = css('--muted'); g.font = '12px sans-serif'; g.fillText('步数', w - pad - 24, h - 6); g.fillText('f(x)', pad + 4, pad - 8);
+  g.strokeStyle = css('--path'); g.lineWidth = 2; g.beginPath();
+  ys.forEach((y, i) => i ? g.lineTo(X(i), Y(y)) : g.moveTo(X(i), Y(y))); g.stroke();
+}
+function verdict(eta, xs) {
+  const v = $('verdict'), last = Math.abs(xs[N]).toPrecision(2);
+  let text, color;
+  if (eta < 0.5 - 1e-9) { text = `平稳收敛：每步乘以 ${(1 - 2 * eta).toFixed(2)}，一直在同一侧往下走。20 步后 |x| ≈ ${last}。`; color = '--ok'; }
+  else if (Math.abs(eta - 0.5) < 1e-9) { text = '一步到位：每步乘以 0，第 1 步就到最低点。'; color = '--ok'; }
+  else if (eta < 1 - 1e-9) { text = `震荡收敛：每步乘以 ${(1 - 2 * eta).toFixed(2)}，左右来回跳，但越跳越近。20 步后 |x| ≈ ${last}。`; color = '--warn'; }
+  else if (Math.abs(eta - 1) < 1e-9) { text = '原地打转：每步乘以 −1，在两侧来回跳，永远不收敛。'; color = '--bad'; }
+  else { text = `发散：每步乘以 ${(1 - 2 * eta).toFixed(2)}，越跳越远。20 步后 |x| ≈ ${last}。`; color = '--bad'; }
+  v.textContent = text; v.style.color = css(color);
+}
+function update() {
+  const eta = +$('eta').value, x0 = +$('x0').value;
+  $('etaV').textContent = eta.toFixed(2); $('x0V').textContent = x0.toFixed(1);
+  const xs = run(eta, x0);
+  drawCurve(xs); drawLoss(xs); verdict(eta, xs);
+}
+$('eta').addEventListener('input', update);
+$('x0').addEventListener('input', update);
+document.querySelectorAll('.tries button').forEach(b => b.addEventListener('click', () => { $('eta').value = b.dataset.eta; update(); }));
+window.addEventListener('resize', update);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', update);
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>理解阶梯演示</title>
+<meta name="description" content="同一段内容，按 Karpathy 的理解阶梯从第 0 级重写到第 4 级：为什么服务器利用率过了 80%，延迟会突然暴涨。">
+<style>
+  :root {
+    --bg: #f7f5ef; --fg: #1c1b19; --muted: #6a675f; --line: #e2ded3; --card: #fffdf8;
+    --accent: #d9480f; --accent-soft: #fff0e6; --blue: #1971c2; --green: #2b8a3e; --red: #c92a2a;
+    --code: #f0ece2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #151513; --fg: #edebe4; --muted: #a29f96; --line: #33312c; --card: #1e1d1a;
+      --accent: #ff8a4c; --accent-soft: #3a2316; --blue: #74c0fc; --green: #69db7c; --red: #ff8787; --code: #26251f; }
+  }
+  :root[data-theme="dark"] { --bg: #151513; --fg: #edebe4; --muted: #a29f96; --line: #33312c; --card: #1e1d1a;
+    --accent: #ff8a4c; --accent-soft: #3a2316; --blue: #74c0fc; --green: #69db7c; --red: #ff8787; --code: #26251f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.8 -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 32px 16px 64px; }
+  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  h1 { font-size: 28px; line-height: 1.3; margin: 4px 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  .en { display: block; font-size: 13px; color: var(--muted); font-weight: 400; }
+  nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 20px; position: sticky; top: 0;
+    background: var(--bg); padding: 8px 0; z-index: 2; }
+  nav button { font: inherit; text-align: left; border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    border-radius: 10px; padding: 8px 10px; cursor: pointer; line-height: 1.3; }
+  nav button small { display: block; color: var(--muted); font-size: 12px; }
+  nav button[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  nav button b { font-size: 15px; }
+  @media (max-width: 640px) { nav { grid-template-columns: repeat(5, minmax(0, 1fr)); } nav button small { display: none; } nav button { padding: 8px 4px; text-align: center; } }
+  section[role=tabpanel] { display: none; }
+  section[role=tabpanel].on { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .why { font-size: 14px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 12px; margin: 0 0 16px; }
+  .prose0 { color: var(--muted); }
+  h3 { font-size: 17px; margin: 20px 0 4px; }
+  code, .formula { font-family: ui-monospace, Menlo, monospace; font-size: 14px; background: var(--code); border-radius: 4px; padding: 1px 5px; }
+  .formula { display: inline-block; padding: 6px 10px; font-size: 15px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .ctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .ctrl { grid-template-columns: 1fr; } }
+  label { font-size: 14px; color: var(--muted); display: block; }
+  label b { color: var(--fg); font-size: 16px; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; height: 28px; accent-color: var(--accent); }
+  canvas { width: 100%; display: block; }
+  #curve { height: 260px; }
+  #sim { height: 90px; margin-top: 8px; }
+  .stat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 0; }
+  .stat div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  .stat small { display: block; color: var(--muted); font-size: 12px; }
+  .stat b { font-size: 20px; font-variant-numeric: tabular-nums; }
+  .caution { margin-top: 28px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); font-size: 15px; }
+  .caution b { color: var(--red); }
+  svg text { font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; }
+  footer { margin-top: 32px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--accent); }
+  .tries button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: transparent; color: var(--accent); border-radius: 6px; padding: 0 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">understanding-ladder · demo</p>
+  <h1>为什么服务器利用率过了 80%，延迟会突然暴涨？<span class="en">Why does latency explode once a server passes ~80% utilization?</span></h1>
+  <p class="sub">同一段内容，按 Karpathy 的「理解阶梯」从第 0 级重写到第 4 级。点上面的标签切换。</p>
+
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-t="0"><b>0 默认</b><small>AI 常见写法</small></button>
+    <button role="tab" aria-selected="false" data-t="1"><b>1 文字</b><small>plain-chinese</small></button>
+    <button role="tab" aria-selected="false" data-t="2"><b>2 图</b><small>结构一次摊开</small></button>
+    <button role="tab" aria-selected="false" data-t="3"><b>3 网页</b><small>自己拖参数</small></button>
+    <button role="tab" aria-selected="false" data-t="4"><b>4 视频</b><small>分镜 + 工具链</small></button>
+  </nav>
+
+  <!-- Level 0 -->
+  <section role="tabpanel" data-p="0" class="on">
+    <p class="why">第 0 级：模型不加约束时的常见写法。内容大体正确，但要读两三遍。</p>
+    <div class="card prose0">
+      <p>这是一个非常好的问题！值得注意的是，在排队论的视角下，服务器延迟与利用率之间呈现出一种高度非线性的关系。具体而言，当系统利用率处于较低水平时，请求到达后通常能够被及时处理，排队等待时间相对可以忽略不计；然而随着利用率逐步攀升并超过某个临界区间（通常认为在 70%–80% 左右），由于请求到达过程本身存在的随机性所导致的突发性拥塞会被显著放大，进而使得平均等待时间以一种近似于 1/(1−ρ) 的方式急剧增长，这也就是为什么在实际的生产环境中，运维团队往往会倾向于为系统预留一定的容量冗余，而不是追求将资源利用率最大化。总的来说，理解这一点对于容量规划具有重要的指导意义。</p>
+    </div>
+  </section>
+
+  <!-- Level 1 -->
+  <section role="tabpanel" data-p="1">
+    <p class="why">第 1 级：用 plain-chinese 重写。内容一点没删，只把句子拆干净。</p>
+    <div class="card">
+      <p><b>结论</b>：服务器越忙，请求排队越久。而且不是匀速变久——利用率过了 80% 左右，排队时间会急剧变长。</p>
+      <h3>两个术语</h3>
+      <ul>
+        <li><b>利用率（ρ）</b>：服务器忙碌的时间占总时间的比例。ρ = 0.8 表示 80% 的时间在处理请求。</li>
+        <li><b>延迟</b>：一个请求从到达到处理完的总时间，等于「排队时间 + 处理时间」。</li>
+      </ul>
+      <h3>为什么会暴涨</h3>
+      <p>请求不是均匀到达的。有时一秒来很多，有时一个也不来。请求扎堆来时，后到的请求要排队。</p>
+      <p>服务器空闲多时，队伍很快就能清空。服务器空闲少时，上一波队伍还没清空，下一波又来了。队伍越积越长。</p>
+      <p>在最简单的排队模型（M/M/1）里，平均延迟是：</p>
+      <p><span class="formula">延迟 = 处理时间 ÷ (1 − ρ)</span></p>
+      <p>分母 (1 − ρ) 是服务器的空闲比例。ρ 接近 1 时，分母接近 0，延迟就冲向无穷大。</p>
+      <h3>算一下</h3>
+      <p>假设处理一个请求平均要 10 毫秒：</p>
+      <table>
+        <tr><th>利用率 ρ</th><th>平均延迟</th><th>比空闲时慢几倍</th></tr>
+        <tr><td class="num">50%</td><td class="num">20 毫秒</td><td class="num">2 倍</td></tr>
+        <tr><td class="num">80%</td><td class="num">50 毫秒</td><td class="num">5 倍</td></tr>
+        <tr><td class="num">90%</td><td class="num">100 毫秒</td><td class="num">10 倍</td></tr>
+        <tr><td class="num">95%</td><td class="num">200 毫秒</td><td class="num">20 倍</td></tr>
+      </table>
+      <p>从 50% 到 80%，利用率多了 30 个百分点，延迟多了 30 毫秒。从 90% 到 95%，利用率只多了 5 个百分点，延迟却多了 100 毫秒。</p>
+      <h3>所以</h3>
+      <p>运维团队通常给服务器留出余量，不把利用率推到最高。</p>
+    </div>
+  </section>
+
+  <!-- Level 2 -->
+  <section role="tabpanel" data-p="2">
+    <p class="why">第 2 级：图。文字要一句一句讲的结构，图一次摊开：左边是「为什么排队」，右边是「排多久」。</p>
+    <div class="card">
+      <svg viewBox="0 0 860 330" width="100%" role="img" aria-label="排队示意图和延迟曲线">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <g style="color: var(--muted)">
+          <text x="20" y="28" font-size="15" font-weight="600" fill="var(--fg)">① 请求随机到达，扎堆时排队</text>
+          <g font-size="13" fill="var(--muted)">
+            <circle cx="40" cy="96" r="7" fill="var(--blue)"/><circle cx="58" cy="96" r="7" fill="var(--blue)"/><circle cx="92" cy="96" r="7" fill="var(--blue)"/>
+            <text x="22" y="128">随机到达</text>
+            <line x1="112" y1="96" x2="150" y2="96" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+            <rect x="156" y="74" width="150" height="44" rx="8" fill="none" stroke="var(--line)" stroke-width="2"/>
+            <circle cx="180" cy="96" r="7" fill="var(--accent)"/><circle cx="200" cy="96" r="7" fill="var(--accent)"/><circle cx="220" cy="96" r="7" fill="var(--accent)"/><circle cx="240" cy="96" r="7" fill="var(--accent)"/>
+            <text x="196" y="140">队列</text>
+            <line x1="310" y1="96" x2="348" y2="96" stroke="currentColor" stroke-width="1.5" marker-end="url(#ar)"/>
+            <rect x="354" y="70" width="72" height="52" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+            <text x="368" y="101" fill="var(--fg)">服务器</text>
+            <text x="356" y="140">一次处理一个</text>
+          </g>
+          <g font-size="14" fill="var(--fg)">
+            <text x="20" y="190">延迟 = 排队时间 + 处理时间</text>
+            <text x="20" y="218">空闲时间多 → 队伍很快清空</text>
+            <text x="20" y="246">空闲时间少 → 上一波没清空，下一波又来</text>
+            <text x="20" y="274" fill="var(--red)">→ 队伍越积越长</text>
+          </g>
+          <!-- curve -->
+          <text x="480" y="28" font-size="15" font-weight="600" fill="var(--fg)">② 延迟 = 处理时间 ÷ (1 − ρ)</text>
+          <line x1="500" y1="290" x2="840" y2="290" stroke="var(--line)" stroke-width="1.5"/>
+          <line x1="500" y1="290" x2="500" y2="50" stroke="var(--line)" stroke-width="1.5"/>
+          <text x="640" y="326" font-size="13" fill="var(--muted)">利用率 ρ →</text>
+          <text x="506" y="62" font-size="13" fill="var(--muted)">延迟</text>
+          <path id="l2curve" fill="none" stroke="var(--accent)" stroke-width="3"/>
+          <g id="l2marks" font-size="12" fill="var(--muted)"></g>
+        </g>
+      </svg>
+      <p style="font-size:14px;color:var(--muted)">怎么读：左边从左往右，是一个请求经过的路径。右边的曲线是平均延迟随利用率的变化（处理时间 10 毫秒）。曲线在 80% 之前很平，之后几乎竖直向上。</p>
+    </div>
+  </section>
+
+  <!-- Level 3 -->
+  <section role="tabpanel" data-p="3">
+    <p class="why">第 3 级：网页。读文字时只能相信作者；拖动滑块时，你亲眼看到延迟在哪里开始暴涨。</p>
+    <div class="card">
+      <div class="ctrl">
+        <label>利用率 ρ：<b id="rhoV"></b><input id="rho" type="range" min="0.05" max="0.98" step="0.01" value="0.5"></label>
+        <label>平均处理时间：<b id="sV"></b><input id="s" type="range" min="1" max="50" step="1" value="10"></label>
+      </div>
+      <canvas id="curve"></canvas>
+      <div class="stat">
+        <div><small>平均延迟</small><b id="w"></b></div>
+        <div><small>其中排队</small><b id="q"></b></div>
+        <div><small>比空闲时慢</small><b id="x"></b></div>
+      </div>
+      <canvas id="sim" aria-label="排队模拟动画"></canvas>
+      <p style="font-size:13px;color:var(--muted);margin:4px 0 0">下面的动画是一个随机模拟：蓝点按当前利用率随机到达，橙色是队伍。把 ρ 拖到 0.9 以上，看队伍怎么变长。</p>
+      <h3>试试这样拖</h3>
+      <ol class="tries">
+        <li>从 0.5 慢慢拖到 0.8，看延迟涨了多少。<button data-r="0.8">设为 0.8</button></li>
+        <li>从 0.9 拖到 0.95，只多 5 个百分点，延迟翻倍。<button data-r="0.95">设为 0.95</button></li>
+        <li>改「平均处理时间」：曲线形状不变，只是整体变高或变低。</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Level 4 -->
+  <section role="tabpanel" data-p="4">
+    <p class="why">第 4 级：讲解视频。understanding-ladder 不渲染视频，只交付文字稿、分镜、工具链和一段可以直接交给视频工具的 prompt。</p>
+    <div class="card">
+      <h3 style="margin-top:0">分镜（约 75 秒）</h3>
+      <table>
+        <tr><th>#</th><th>时长</th><th>画面</th><th>旁白</th></tr>
+        <tr><td>1</td><td>5 秒</td><td>标题卡</td><td>这段视频讲一件事：服务器为什么在 80% 之后突然变慢。</td></tr>
+        <tr><td>2</td><td>10 秒</td><td>蓝点随机落进一条队列，服务器一次处理一个</td><td>请求随机到达。服务器一次只能处理一个。</td></tr>
+        <tr><td>3</td><td>12 秒</td><td>ρ = 0.5：队伍时有时无</td><td>服务器一半时间空闲。队伍偶尔出现，很快清空。</td></tr>
+        <tr><td>4</td><td>12 秒</td><td>ρ = 0.9：队伍不断变长</td><td>服务器九成时间在忙。上一波还没清空，下一波又来了。</td></tr>
+        <tr><td>5</td><td>14 秒</td><td>右侧画出曲线 1/(1−ρ)，一个点沿曲线滑到 0.95</td><td>平均延迟等于处理时间除以空闲比例。空闲比例接近零，延迟冲向无穷大。</td></tr>
+        <tr><td>6</td><td>12 秒</td><td>四行数字依次出现：2 倍、5 倍、10 倍、20 倍</td><td>处理时间 10 毫秒时，从 50% 到 95%，延迟从 20 毫秒涨到 200 毫秒。</td></tr>
+        <tr><td>7</td><td>10 秒</td><td>回顾卡</td><td>回顾：延迟取决于空闲比例。给服务器留余量。</td></tr>
+      </table>
+      <h3>工具链</h3>
+      <ul>
+        <li><a href="https://github.com/FavioVazquez/showtime">showtime</a>：开源，让 coding agent 在本机渲染视频。0.3 版，仍属早期。</li>
+        <li><a href="https://www.manim.community/">Manim Community</a>：3Blue1Brown 风格的数学动画库。</li>
+        <li><a href="https://github.com/thewh1teagle/kokoro-onnx">kokoro-onnx</a>：免费本地配音。或用 ElevenLabs（需要 API key）。</li>
+      </ul>
+      <h3>交给视频工具的 prompt</h3>
+      <p><code>Create a 3b1b style video explainer, about 75 seconds, on why server latency explodes past ~80% utilization. Follow this storyboard exactly: […]. Narration in Chinese, free local TTS voice. Burn in captions.</code></p>
+    </div>
+  </section>
+
+  <div class="caution"><b>好懂 ≠ 已验证。</b>阶梯降低的是理解成本，不是验证成本。本页用的是最简单的 M/M/1 模型：到达和处理时间都服从指数分布，只有一台服务器。真实系统的数字会不同，但「接近满载时延迟急剧上升」这个规律普遍成立。</div>
+
+  <footer>由 <a href="https://github.com/ChangWenC/understanding-ladder">understanding-ladder</a> 生成的演示。受 <a href="https://x.com/karpathy/status/2105819303471976479">Andrej Karpathy 的帖子</a>启发。单文件，无依赖。</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+try { const th = new URLSearchParams(location.search).get('theme'); if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th; } catch (e) {}
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// tabs
+const tabs = [...document.querySelectorAll('[role=tab]')];
+function show(t) {
+  tabs.forEach(b => b.setAttribute('aria-selected', b.dataset.t === t));
+  document.querySelectorAll('[role=tabpanel]').forEach(p => p.classList.toggle('on', p.dataset.p === t));
+  try { history.replaceState(null, '', '#' + t); } catch (e) {}
+  if (t === '3') draw();
+}
+tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.t)));
+if (/^#[0-4]$/.test(location.hash)) show(location.hash.slice(1));
+
+// level 2 static curve
+(function () {
+  const X = r => 500 + r * 340, Y = m => 290 - Math.min(m, 22) / 22 * 230;
+  let d = '';
+  for (let r = 0; r <= 0.957; r += 0.004) d += (d ? 'L' : 'M') + X(r).toFixed(1) + ',' + Y(1 / (1 - r)).toFixed(1);
+  document.getElementById('l2curve').setAttribute('d', d);
+  const g = document.getElementById('l2marks');
+  [[0.5, '2×'], [0.8, '5×'], [0.9, '10×'], [0.95, '20×']].forEach(([r, t]) => {
+    const x = X(r), y = Y(1 / (1 - r));
+    g.insertAdjacentHTML('beforeend', `<circle cx="${x}" cy="${y}" r="4" fill="var(--accent)"/><text x="${x - 30}" y="${y + 4}" fill="var(--fg)">${t}</text>${r < 0.95 ? `<text x="${x - 10}" y="306">${Math.round(r * 100)}%</text>` : ''}`);
+  });
+})();
+
+// level 3
+function setup(c) {
+  const r = c.getBoundingClientRect(), d = devicePixelRatio || 1;
+  c.width = r.width * d; c.height = r.height * d;
+  const g = c.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); return [g, r.width, r.height];
+}
+function draw() {
+  const rho = +$('rho').value, s = +$('s').value, w = s / (1 - rho);
+  $('rhoV').textContent = Math.round(rho * 100) + '%'; $('sV').textContent = s + ' 毫秒';
+  $('w').textContent = w.toFixed(0) + ' 毫秒'; $('q').textContent = (w - s).toFixed(0) + ' 毫秒';
+  $('x').textContent = (1 / (1 - rho)).toFixed(1) + ' 倍';
+  $('w').style.color = rho >= 0.9 ? css('--red') : rho >= 0.8 ? css('--accent') : css('--fg');
+  const c = $('curve'); if (!c.offsetParent) return;
+  const [g, W, H] = setup(c), p = 30, top = 50 * s;
+  const X = r => p + r * (W - 2 * p), Y = v => H - p - Math.min(v, top) / top * (H - 2 * p);
+  g.clearRect(0, 0, W, H);
+  g.strokeStyle = css('--line'); g.lineWidth = 1; g.beginPath(); g.moveTo(p, p); g.lineTo(p, H - p); g.lineTo(W - p, H - p); g.stroke();
+  g.fillStyle = css('--muted'); g.font = '12px sans-serif';
+  [0, 0.2, 0.4, 0.6, 0.8, 1].forEach(r => g.fillText(r * 100 + '%', X(r) - 10, H - p + 16));
+  g.fillText('平均延迟', p + 4, p - 10);
+  g.fillStyle = css('--accent-soft'); g.fillRect(X(0.8), p, X(1) - X(0.8), H - 2 * p);
+  g.fillStyle = css('--muted'); g.fillText('危险区', X(0.82), p + 14);
+  g.strokeStyle = css('--accent'); g.lineWidth = 2.5; g.beginPath();
+  for (let r = 0; r <= 0.985; r += 0.003) { const y = Y(s / (1 - r)); r ? g.lineTo(X(r), y) : g.moveTo(X(r), y); }
+  g.stroke();
+  g.fillStyle = css('--accent'); g.beginPath(); g.arc(X(rho), Y(w), 6, 0, 7); g.fill();
+  g.fillStyle = css('--fg'); g.font = '13px sans-serif'; g.fillText(w.toFixed(0) + ' ms', Math.min(X(rho) + 8, W - 60), Math.max(Y(w) - 8, p + 12));
+}
+try { const q = new URLSearchParams(location.search).get('rho'); if (q) $('rho').value = q; } catch (e) {}
+['rho', 's'].forEach(id => $(id).addEventListener('input', draw));
+document.querySelectorAll('.tries button').forEach(b => b.addEventListener('click', () => { $('rho').value = b.dataset.r; draw(); }));
+addEventListener('resize', draw);
+
+// queue simulation (M/M/1, sped up)
+let queue = 0, busy = false, nextArr = 0, nextDep = Infinity, t = 0, last = performance.now(), hist = [];
+const exp = m => -Math.log(1 - Math.random()) * m;
+function tick(now) {
+  const dt = Math.min((now - last) / 1000, 0.1); last = now;
+  const rho = +$('rho').value, svc = 0.25, arr = svc / rho;
+  t += dt;
+  while (t >= nextArr || t >= nextDep) {
+    if (nextArr <= nextDep) { if (busy) queue++; else { busy = true; nextDep = nextArr + exp(svc); } nextArr += exp(arr); }
+    else { if (queue > 0) { queue--; nextDep += exp(svc); } else { busy = false; nextDep = Infinity; } }
+  }
+  hist.push(queue); if (hist.length > 600) hist.shift();
+  const c = $('sim');
+  if (c.offsetParent) {
+    const [g, W, H] = setup(c);
+    g.clearRect(0, 0, W, H);
+    g.fillStyle = busy ? css('--accent') : css('--line');
+    g.fillRect(W - 70, 20, 56, 44); g.fillStyle = css('--card'); g.font = '12px sans-serif'; g.fillText(busy ? '处理中' : '空闲', W - 60, 46);
+    g.fillStyle = css('--accent');
+    const n = Math.min(queue, Math.floor((W - 110) / 14));
+    for (let i = 0; i < n; i++) { g.beginPath(); g.arc(W - 90 - i * 14, 42, 5, 0, 7); g.fill(); }
+    g.fillStyle = css('--muted'); g.fillText('队伍长度：' + queue + (queue > n ? '（画不下了）' : ''), 6, 14);
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+draw();
+</script>
+</body>
+</html>

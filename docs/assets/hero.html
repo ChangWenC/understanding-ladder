@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>plain-chinese before after</title>
+<!-- Source for docs/assets/hero.png. Render: see docs/assets/README.md -->
+<style>
+  body { margin: 0; background: #f7f5ef; color: #1c1b19; font: 17px/1.75 -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; }
+  .wrap { width: 1200px; padding: 36px 40px 32px; box-sizing: border-box; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+  .top h1 { font-size: 26px; margin: 0; }
+  .top h1 span { color: #d9480f; }
+  .top small { color: #6a675f; font-size: 15px; }
+  .cols { display: grid; grid-template-columns: 1fr 56px 1fr; align-items: stretch; }
+  .col { border-radius: 14px; padding: 20px 22px; }
+  .before { background: #ece8de; color: #55524b; }
+  .after { background: #fffdf8; border: 2px solid #d9480f; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .06em; padding: 2px 10px; border-radius: 99px; margin-bottom: 10px; }
+  .before .tag { background: #d8d3c6; color: #55524b; }
+  .after .tag { background: #d9480f; color: #fff; }
+  .arrow { display: flex; align-items: center; justify-content: center; font-size: 34px; color: #d9480f; }
+  p { margin: 0 0 10px; }
+  .after b { color: #1c1b19; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 4px 0 10px; }
+  th, td { border-bottom: 1px solid #e2ded3; padding: 4px 6px; text-align: left; }
+  th { color: #6a675f; font-weight: 600; font-size: 13px; }
+  ol, ul { margin: 0 0 8px; padding-left: 22px; }
+  mark { background: #ffe8d6; color: inherit; padding: 0 2px; border-radius: 3px; }
+  .foot { margin-top: 16px; font-size: 14px; color: #6a675f; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>plain-chinese：<span>内容一点不删，只把句子拆干净</span></h1>
+    <small>Same facts. Plain Chinese. 同样的事实，读一遍就懂</small>
+  </div>
+  <div class="cols">
+    <div class="col before">
+      <span class="tag">前 · AI 默认写法</span>
+      <p>本周在推进 A/B 实验平台的过程中取得了阶段性的进展，整体而言新版推荐算法在点击率这一核心指标上呈现出一定程度的提升趋势（实验组 4.3% vs 对照组 4.0%，p=0.08，尚未达到统计显著），但与此同时在用户停留时长方面却出现了小幅的下滑（约 -2%），考虑到样本量目前仅覆盖了约 5% 的流量且实验仅运行了 6 天，现阶段并不适合据此做出全量上线的决策，<mark>团队倾向于</mark>在扩大流量至 20% 并再观察至少一周之后再进行综合评估，在此期间也会针对停留时长下降的原因开展进一步的排查。</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col after">
+      <span class="tag">后 · plain-chinese</span>
+      <p><b>结论</b>：新算法现在不适合全量上线。<mark>团队倾向于</mark>先把流量扩大到 20%，至少再观察一周，然后综合评估。</p>
+      <table>
+        <tr><th>指标</th><th>实验组</th><th>对照组</th><th>说明</th></tr>
+        <tr><td>点击率</td><td>4.3%</td><td>4.0%</td><td>p = 0.08，未达显著</td></tr>
+        <tr><td>停留时长</td><td>约 −2%</td><td>—</td><td>实验组更短</td></tr>
+      </table>
+      <p><b>为什么不上线</b>：只覆盖约 5% 的流量；只运行了 6 天。</p>
+      <p style="margin:0"><b>接下来</b>：① 流量扩到 20% ② 至少再观察一周 ③ 排查停留时长为什么下降</p>
+    </div>
+  </div>
+  <div class="foot"><span>所有数字和「倾向于」这类限定词都保留了。删掉它，计划就从「倾向」变成了「已决定」。</span><span>github.com/ChangWenC/understanding-ladder</span></div>
+</div>
+</body>
+</html>
