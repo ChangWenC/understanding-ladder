@@ -62,7 +62,7 @@ npx skills add ChangWenC/understanding-ladder
 
 ![演示页：同一内容在 0–4 级之间切换](docs/assets/ladder-demo.gif)
 
-在浏览器打开 [docs/demo/index.html](docs/demo/index.html)（单文件，无依赖），切换 0–4 级的标签，看格式本身怎么改变理解的难度。
+**[在线打开演示页 →](https://changwenc.github.io/understanding-ladder/docs/demo/)**（源文件：[docs/demo/index.html](docs/demo/index.html)，单文件，无依赖），切换 0–4 级的标签，看格式本身怎么改变理解的难度。
 
 ## 安装
 
@@ -146,7 +146,7 @@ In English, "in ASD-STE100" is enough to summon the whole rule set. **Chinese ha
 - **`plain-chinese`** — *how to write.* 15 explicit rules for plain Chinese: one idea per sentence, one meaning per term, active voice, no filler. The key rule: **simple language, not less content** — every fact, number, condition and hedge stays.
 - **`understanding-ladder`** — *which format.* Classifies the content (definition/steps, process/causality, parameter → outcome, unfolding derivation), recommends the lowest rung that fully answers, and produces it: plain text (via `plain-chinese`), a Mermaid/SVG diagram, a single-file interactive HTML page, or a video storyboard with tool links (it does not render video).
 
-**Demo:** the same explanation ("why latency explodes past ~80% utilization") rewritten at levels 0–4: [docs/demo/index.html](docs/demo/index.html).
+**Demo:** the same explanation ("why latency explodes past ~80% utilization") rewritten at levels 0–4: **[live demo](https://changwenc.github.io/understanding-ladder/docs/demo/)** ([source](docs/demo/index.html)).
 
 **Install:**
 
