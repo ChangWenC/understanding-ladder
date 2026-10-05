@@ -1,66 +1,64 @@
-# 第 2 级：图
+# Rung 2: diagram
 
-## 什么时候用
+## When
 
-内容的核心是**结构**：谁连着谁、先后顺序、因果、层级、状态之间怎么转换。文字只能一句接一句地讲结构，读者要在脑子里自己拼。图把结构一次摊开。
+The core of the content is **structure**: what connects to what, order, cause and effect, hierarchy, transitions between states. Text can only describe structure one sentence at a time; the reader has to assemble it in their head. A diagram lays it out at once.
 
-## 第一步：选图型
+## Step 1: choose the type
 
-| 内容 | 图型 | Mermaid 写法 |
+| Content | Type | Mermaid |
 |---|---|---|
-| 步骤和分支 | 流程图 | `flowchart LR` / `flowchart TD` |
-| 几个参与者之间来回发消息 | 时序图 | `sequenceDiagram` |
-| 状态之间怎么转换 | 状态图 | `stateDiagram-v2` |
-| 上下级、包含关系 | 层级图 | `flowchart TD`，或 `mindmap` |
-| A 导致 B，B 又影响 C | 因果图 | `flowchart LR`，边上写「增加」「减少」 |
-| 两三个东西逐项对比 | 表格 | Markdown 表格（表格也是图） |
+| Steps and branches | Flowchart | `flowchart LR` / `flowchart TD` |
+| Several parties exchanging messages | Sequence diagram | `sequenceDiagram` |
+| Transitions between states | State diagram | `stateDiagram-v2` |
+| Parent/child, containment | Hierarchy | `flowchart TD`, or `mindmap` |
+| A causes B, B affects C | Causal graph | `flowchart LR`, label edges "increases" / "decreases" |
+| Two or three things compared item by item | Table | Markdown table (a table is a diagram too) |
 
-一张图只回答一个问题。两个问题就画两张图。
+One diagram answers one question. Two questions, two diagrams.
 
-## 第二步：先写文字稿
+## Step 2: write the rung-1 draft first
 
-按 `plain-chinese` 的规则写一段文字稿。图里的每个节点、每条边，都要能在文字稿里找到。图不引入新事实。
+Write the plain-text draft (rung-1 rules). Every node and edge must appear in the draft. The diagram adds no new facts.
 
-## 第三步：画图
+## Step 3: draw
 
-规则：
+1. ≤8 words (≤8 Chinese characters) per box. Nouns in boxes, verbs on edges.
+2. ≤12 nodes. More than that: split into two diagrams, or collapse detail into a sub-process box.
+3. Same kind of thing, same shape. E.g. data = rounded box, step = rectangle, decision = diamond.
+4. One direction: left→right or top→bottom.
+5. Terms match the draft exactly. If the draft says "token", the diagram does not say "credential".
 
-1. 每个框不超过 8 个字。框里写名词，边上写动作（动词）。
-2. 节点不超过 12 个。超过时拆成两张图，或者把细节收进一个「子流程」框。
-3. 同一种东西用同一种形状。例如：数据用圆角框，处理步骤用方框，判断用菱形。
-4. 箭头方向一致：从左到右，或从上到下。
-5. 术语和文字稿完全一致。文字稿叫「令牌」，图里就不写「token」。
+Where to output:
 
-输出位置：
+- If the chat UI renders Mermaid, output a Mermaid code block.
+- If layout, color, or annotations matter, write a single-file SVG or HTML in the working directory.
+- In Mermaid, quote labels that contain parentheses, quotes, or colons: `A["input (x)"]`. For non-ASCII state names in `stateDiagram-v2`, declare them: `state "已支付" as paid`.
 
-- 聊天界面能渲染 Mermaid 时，直接输出 Mermaid 代码块。
-- 需要精确布局、颜色或注释时，写一个单文件 SVG 或 HTML，保存到当前目录。
-- Mermaid 语法里，含括号、引号、冒号的文字要用双引号包起来，例如 `A["输入 (x)"]`。
+## Step 4: say how to read it
 
-## 第四步：图下的说明
+Below the diagram, 2–4 sentences on **how to read it**:
 
-图下写 2–4 句话，告诉读者**怎么读这张图**：
+> Read left to right. Rectangles are steps, diamonds are decisions. Red edges are the error path.
 
-> 从左往右读。每个方框是一个步骤，菱形是一次判断。红色的边是出错时走的路径。
+## Example
 
-## 示例
-
-问题：「用户登录时，前端、后端和数据库之间发生了什么？」
+Question: "What happens between the browser, the server, and the database when a user logs in?"
 
 ```mermaid
 sequenceDiagram
-    participant 前端
-    participant 后端
-    participant 数据库
-    前端->>后端: 发送用户名和密码
-    后端->>数据库: 按用户名查密码哈希
-    数据库-->>后端: 返回密码哈希
-    后端->>后端: 比对哈希
-    alt 比对成功
-        后端-->>前端: 返回令牌
-    else 比对失败
-        后端-->>前端: 返回「密码错误」
+    participant Browser
+    participant Server
+    participant DB
+    Browser->>Server: username + password
+    Server->>DB: look up password hash
+    DB-->>Server: password hash
+    Server->>Server: compare hashes
+    alt match
+        Server-->>Browser: session token
+    else no match
+        Server-->>Browser: "wrong password"
     end
 ```
 
-怎么读：从上往下是时间顺序。实线箭头是请求，虚线箭头是返回。框住的部分是两种结果，只会发生其中一种。
+How to read it: time runs top to bottom. Solid arrows are requests, dashed arrows are responses. The boxed part shows two outcomes; only one happens.

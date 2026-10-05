@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>understanding-ladder before after</title>
+<!-- Source for docs/assets/hero-en.png (1200x600, also the social preview). Render: see docs/assets/README.md -->
+<style>
+  body { margin: 0; background: #f7f5ef; color: #1c1b19; font: 16.5px/1.6 -apple-system, "PingFang SC", "Noto Sans SC", sans-serif; }
+  .wrap { width: 1200px; height: 600px; padding: 34px 40px 26px; box-sizing: border-box; }
+  .top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
+  .top h1 { font-size: 26px; margin: 0; }
+  .top h1 span { color: #d9480f; }
+  .top small { color: #6a675f; font-size: 15px; }
+  .cols { display: grid; grid-template-columns: 1fr 56px 1fr; align-items: stretch; }
+  .col { border-radius: 14px; padding: 20px 22px; }
+  .before { background: #ece8de; color: #55524b; }
+  .after { background: #fffdf8; border: 2px solid #d9480f; }
+  .tag { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .06em; padding: 2px 10px; border-radius: 99px; margin-bottom: 10px; }
+  .before .tag { background: #d8d3c6; color: #55524b; }
+  .after .tag { background: #d9480f; color: #fff; }
+  .arrow { display: flex; align-items: center; justify-content: center; font-size: 34px; color: #d9480f; }
+  p { margin: 0 0 10px; }
+  .after b { color: #1c1b19; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 4px 0 10px; }
+  th, td { border-bottom: 1px solid #e2ded3; padding: 4px 6px; text-align: left; }
+  th { color: #6a675f; font-weight: 600; font-size: 13px; }
+  ol, ul { margin: 0 0 8px; padding-left: 22px; }
+  mark { background: #ffe8d6; color: inherit; padding: 0 2px; border-radius: 3px; }
+  .foot { margin-top: 16px; font-size: 14px; color: #6a675f; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Rung 1: <span>same facts, nothing cut</span></h1>
+    <small>“80% of the way to ASD-STE100” — Karpathy</small>
+  </div>
+  <div class="cols">
+    <div class="col before">
+      <span class="tag">BEFORE · default LLM prose</span>
+      <p>This week we made meaningful progress on the A/B experimentation front: overall, the new recommendation algorithm is showing a promising upward trend in CTR, our core metric (4.3% vs 4.0% control, p=0.08, not yet statistically significant), although it’s worth noting that session duration has seen a slight dip (about −2%); given that the experiment currently covers only ~5% of traffic and has run for just 6 days, it would be premature to make a full rollout decision at this stage, and the team is <mark>leaning toward</mark> expanding to 20% of traffic and observing for at least another week before conducting a holistic evaluation, while in parallel investigating the root cause of the decline.</p>
+    </div>
+    <div class="arrow">→</div>
+    <div class="col after">
+      <span class="tag">AFTER · understanding-ladder</span>
+      <p><b>Decision:</b> Do not roll out the new algorithm yet. The team is <mark>leaning toward</mark> expanding it to 20% of traffic, observing for at least one more week, then deciding.</p>
+      <table>
+        <tr><th>Metric</th><th>Test</th><th>Control</th><th>Note</th></tr>
+        <tr><td>CTR</td><td>4.3%</td><td>4.0%</td><td>p = 0.08, not significant</td></tr>
+        <tr><td>Session duration</td><td>≈ −2%</td><td>—</td><td>shorter in test</td></tr>
+      </table>
+      <p><b>Why wait:</b> only ~5% of traffic; only 6 days.</p>
+      <p style="margin:0"><b>Next:</b> ① expand to 20% ② observe ≥ 1 more week ③ find why sessions got shorter</p>
+    </div>
+  </div>
+  <div class="foot"><span>Every number and the hedge “leaning toward” survive. Drop it, and a plan becomes a decision.</span><span>github.com/ChangWenC/understanding-ladder</span></div>
+</div>
+</body>
+</html>

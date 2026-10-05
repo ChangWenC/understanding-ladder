@@ -1,10 +1,21 @@
 {
   "name": "understanding-ladder",
   "version": "0.1.0",
-  "description": "Two Chinese agent skills for Karpathy's understanding ladder: plain-chinese (how to write) and understanding-ladder (which format: text, diagram, HTML, video).",
-  "author": { "name": "ChangWenC", "url": "https://github.com/ChangWenC" },
+  "description": "Karpathy's understanding ladder as agent skills: understanding-ladder picks text / diagram / interactive HTML / video storyboard by content type; plain-chinese spells out rung-1 rules for Chinese.",
+  "author": {
+    "name": "ChangWenC",
+    "url": "https://github.com/ChangWenC"
+  },
   "homepage": "https://github.com/ChangWenC/understanding-ladder",
   "repository": "https://github.com/ChangWenC/understanding-ladder",
   "license": "MIT",
-  "keywords": ["skills", "chinese", "writing", "explainer", "karpathy", "asd-ste100", "plain-language"]
+  "keywords": [
+    "skills",
+    "chinese",
+    "writing",
+    "explainer",
+    "karpathy",
+    "asd-ste100",
+    "plain-language"
+  ]
 }

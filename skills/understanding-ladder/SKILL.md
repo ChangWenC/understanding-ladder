@@ -1,98 +1,110 @@
 ---
 name: understanding-ladder
-description: 按 Karpathy 的「理解阶梯」为一段解释选输出格式：① 简明文字 → ② 图 → ③ HTML 交互网页 → ④ 3b1b 风格讲解视频。先判断内容类型（定义/步骤、流程/因果、参数影响结果、推导过程），推荐最合适的一级，再按该级的做法产出。用户说「讲清楚」「帮我理解」「画个图」「做个可视化/交互页」「做个讲解视频」「用哪种方式讲最好懂」「理解阶梯」「Karpathy ladder」时使用；解释一个较复杂的概念、机制、算法或 AI 产出时也可以使用。
+description: Pick the output format that makes an explanation easiest to understand, following Karpathy's understanding ladder — (1) plain controlled text, (2) diagram, (3) interactive HTML page, (4) 3Blue1Brown-style explainer video. Classify the content (definition/steps, process/causality, parameter→outcome, unfolding derivation), recommend the lowest rung that fully answers, then produce it. Works in English and Chinese. Use when the user says "explain this clearly", "help me understand", "draw a diagram", "make it interactive", "make an explainer video", "what's the best way to explain X", "understanding ladder", "Karpathy ladder", or 「讲清楚」「帮我理解」「画个图」「做个交互页」「做个讲解视频」「用哪种方式讲最好懂」「理解阶梯」; also when explaining a non-trivial concept, mechanism, algorithm, or an AI agent's output.
 ---
 
-# 理解阶梯（understanding-ladder）
+# Understanding ladder
 
-这个 skill 决定「用什么格式」讲。它不决定「怎么写」——文字部分一律交给 `plain-chinese` skill。
+This skill decides **which format** to explain in. Writing quality inside every format is handled by level 1 rules (below).
 
-来源：Andrej Karpathy 2026-10-02 的帖子 <https://x.com/karpathy/status/2105819303471976479>。他的判断是：LLM 的产出几乎零成本，人的理解带宽才是瓶颈。所以要主动要求更好懂的格式。他排了四级，每一级都比上一级更好懂，也更贵。
+Source: Andrej Karpathy, 2026-10-02 <https://x.com/karpathy/status/2105819303471976479>. LLM output is nearly free; human understanding is the bottleneck. So ask for formats that are easier to understand. He ranked four, each "even better" than the last — and each more expensive.
 
-## 四级
+**Language:** reply in the user's language. These instructions are in English; the output is not.
 
-| 级 | 格式 | 为什么更好懂 | 成本 |
+## The four rungs
+
+| Rung | Format | Why it is easier | Cost |
 |---|---|---|---|
-| 1 | 简明文字 | 一句一事、一词一义，读一遍不会读错 | 最低 |
-| 2 | 图 | 文字是线性的；图把结构一次摊开 | 低 |
-| 3 | HTML 交互网页 | 读者自己拖动参数，亲眼看结果怎么变 | 中 |
-| 4 | 讲解视频（3b1b 风格） | 动画展示过程，旁白同步解释 | 高 |
+| 1 | Plain controlled text | One idea per sentence, one meaning per term; read once, no misreading | lowest |
+| 2 | Diagram | Text is linear; a diagram lays the structure out at once | low |
+| 3 | Interactive HTML page | The reader moves a parameter and sees the result change | medium |
+| 4 | Explainer video (3b1b style) | Animation shows the process while narration explains it | high |
 
-## 第一步：判断内容类型，选一级
+## Step 1: classify the content, pick a rung
 
-| 内容类型 | 信号 | 推荐 |
+| Content type | Signals | Rung |
 |---|---|---|
-| 定义、事实、对比、操作步骤 | 「X 是什么」「怎么装」「A 和 B 有什么区别」 | 第 1 级 |
-| 流程、因果链、层级、状态变化、组件关系 | 「X 是怎么工作的」「数据怎么流」「谁调用谁」 | 第 2 级 |
-| 参数影响结果、需要自己试、多方案取舍、数据分布 | 「利用率变高，延迟会怎样」「学习率怎么影响收敛」「这几种方案怎么选」 | 第 3 级 |
-| 随时间展开的推导、几何直觉、连续变化的过程 | 「为什么傅里叶变换能分解信号」「梯度下降在曲面上怎么走」 | 第 4 级 |
+| Definition, fact, comparison, procedure | "what is X", "how do I install", "A vs B" | 1 |
+| Process, causal chain, hierarchy, state changes, component relations | "how does X work", "how does data flow", "who calls whom" | 2 |
+| A parameter changes an outcome; trade-offs; distributions | "what happens if utilization rises", "how does learning rate affect convergence" | 3 |
+| A derivation or geometric intuition that unfolds over time | "why do sine waves add up to a square wave", "how does gradient descent move on a surface" | 4 |
 
-选级规则：
+Rules:
 
-1. **用户指定了格式，就用用户的。** 例如用户说「画个图」，就做第 2 级。
-2. **选能完整讲清问题的最低一级。** 一段话能讲清的，不做网页。
-3. **内容同时有几种类型时，按核心难点选。** 核心难点是「参数怎么影响结果」，就选第 3 级，哪怕里面也有定义。
-4. **拿不准时，先做低一级，再提议升级。** 在末尾写一句：「如果想自己拖动参数看变化，我可以做成第 3 级的交互网页。」
+1. **If the user names a format, use it.** "Draw a diagram" means rung 2.
+2. **Pick the lowest rung that fully answers.** If a paragraph is enough, do not build a page.
+3. **Mixed content: pick by the core difficulty.** If the hard part is "how a parameter changes the result", pick rung 3 even if there is a definition inside.
+4. **When unsure, go one rung lower and offer the next.** End with one line, e.g. "If you want to drag the parameter yourself, I can make this a rung-3 interactive page."
 
-开头用一句话说明选择，然后直接产出。不要先问用户「要哪一级」，除非用户明确要你推荐：
+Open with one line that states the choice, then produce it. Do not ask "which rung do you want?" unless the user asked for a recommendation:
 
-> 推荐第 3 级（交互网页）：这个问题的核心是「利用率怎么改变延迟」，拖动滑块比读文字更直接。
+> Rung 3 (interactive page): the core question is how utilization changes latency — dragging a slider shows this faster than text.
 
-## 第二步：按该级的做法产出
+## Step 2: produce the rung
 
-**每一级都从第 1 级的文字稿开始。** 先用 `plain-chinese` 的规则写清文字，再把它变成图、网页或视频。文字稿是审核的依据：先确认文字对，再做更贵的格式。
+**Every rung starts from a rung-1 draft.** Write the plain text first, then turn it into a diagram, page, or video. The draft is what you check for correctness before spending effort on richer formats.
 
-### 第 1 级：简明文字
+### Rung 1: plain controlled text
 
-调用 `plain-chinese` skill，按它的规则写。作为插件安装时，它的名字可能是 `understanding-ladder:plain-chinese`。
+Pick the rules by output language:
 
-如果没有安装 `plain-chinese`，至少遵守这几条：一句只讲一件事；术语第一次出现给定义，之后不换说法；主动句，写清谁做什么；删掉铺垫和客套；内容不删，只把句子拆干净。
+- **Chinese** → use the `plain-chinese` skill (as a plugin it may be named `understanding-ladder:plain-chinese`). Chinese has no "ASD-STE100" to invoke, so that skill spells the rules out.
+- **English** → write "about 80% of the way to ASD-STE100" (Karpathy's phrasing), with these rules made explicit:
+  - One idea per sentence. Aim for ≤20 words in instructions, ≤25 in descriptions.
+  - One term per meaning. Define a term the first time; never rotate synonyms.
+  - Active voice; name who does what. Simple tenses.
+  - Steps as a numbered list, imperative verb first.
+  - Conditions before actions ("If X, do Y").
+  - No filler ("It's worth noting", "Great question", "In summary…").
+  - **Nothing cut.** Keep every fact, number, condition, and hedge ("usually", "may"). Simple language, not less content — the rewrite may be longer.
+  - Do not touch code, commands, paths, quoted errors, or proper names.
+- **Other languages** → apply the English rules in that language.
 
-### 第 2 级：图
+### Rung 2: diagram
 
-做法见 [references/level-2-diagram.md](references/level-2-diagram.md)。要点：
+See [references/level-2-diagram.md](references/level-2-diagram.md). In short:
 
-- 先判断图型：流程图、时序图、层级图、因果图、对比表。
-- 默认用 Mermaid，聊天界面能直接渲染。需要精确布局时，写成单文件 SVG 或 HTML。
-- 每个框不超过 8 个字。图下用 2–4 句话说明怎么读这张图。
+- Choose the diagram type first: flowchart, sequence, state, hierarchy, causal graph, comparison table.
+- Default to Mermaid (renders in most chat UIs and on GitHub). Use a single-file SVG/HTML when layout matters.
+- ≤8 words (or ≤8 Chinese characters) per box. Below the diagram, 2–4 sentences on how to read it.
 
-### 第 3 级：HTML 交互网页
+### Rung 3: interactive HTML page
 
-做法见 [references/level-3-html.md](references/level-3-html.md)。要点：
+See [references/level-3-html.md](references/level-3-html.md). In short:
 
-- 写一个单文件 HTML，不需要构建，双击就能打开。
-- 交互只做一件事：让读者拖动**最关键的 1–3 个参数**，实时看到结果变化。
-- 页面结构：一句结论 → 交互区 → 简明文字解释 → 「试试这样拖」的提示 → 限制与待验证点。
-- 把文件保存到当前目录，告诉用户路径。能打开浏览器时就打开。
+- One self-contained HTML file. No build step; double-click to open.
+- One job: let the reader move the **1–3 parameters that matter** and see the result update live.
+- Layout: one-line takeaway → interactive area → rung-1 text → "try this" prompts → limits and what to check.
+- Save it in the working directory, tell the user the path, open it if the environment allows.
 
-### 第 4 级：讲解视频
+### Rung 4: explainer video
 
-做法见 [references/level-4-video.md](references/level-4-video.md)。本 skill **不渲染视频**，只产出视频的做法：
+See [references/level-4-video.md](references/level-4-video.md). This skill **does not render video**. It delivers:
 
-- 一份分镜脚本：每个镜头的画面、旁白（按 `plain-chinese` 写）、时长。
-- 推荐工具链和安装链接，例如开源的 [showtime](https://github.com/FavioVazquez/showtime)（0.3 版，仍属早期）、[Manim](https://www.manim.community/)、本地 TTS [Kokoro](https://github.com/thewh1teagle/kokoro-onnx)。
-- 如果用户已经装好这些工具，可以把分镜交给对应工具执行。
+- A storyboard: per shot — visual, narration (rung-1 rules), duration.
+- Tool links, e.g. [showtime](https://github.com/FavioVazquez/showtime) (open source, v0.3, early), [Manim](https://www.manim.community/), local TTS [Kokoro](https://github.com/thewh1teagle/kokoro-onnx).
+- A ready-to-paste prompt for those tools. If the user already has them installed, hand the storyboard over.
 
-## 演示模式：同一内容逐级重写
+## Demo mode: same content, every rung
 
-用户说「逐级演示」「把这个从 1 级讲到 4 级」时，对同一内容依次产出：
+When the user says "show all rungs", "walk this from rung 1 to 4", 「逐级演示」:
 
-1. 第 0 级：常见的默认写法（大段散文），作为对照。
-2. 第 1 级：简明文字。
-3. 第 2 级：图。
-4. 第 3 级：交互网页（可以和前几级放进同一个 HTML 页面，分成几栏或几个标签页）。
-5. 第 4 级：分镜脚本。
+1. Rung 0: the usual default prose, as a baseline.
+2. Rung 1: plain text.
+3. Rung 2: diagram.
+4. Rung 3: interactive page (can hold rungs 0–2 as tabs in the same HTML file).
+5. Rung 4: storyboard.
 
-这种形式最适合让人体会「格式本身」带来的理解差别。
+This is the best way to feel how much the format itself changes understanding.
 
-## 每一级都要附上的东西
+## Always append "What to check"
 
-在产出的末尾，加一个「需要核对」小节，列出 1–3 个读者应该自己核对的点：关键数字、公式、和来源不一致的地方。
+End every output with 1–3 things the reader should verify: key numbers, formulas, assumptions, anything that disagrees with a source.
 
-原因：阶梯降低的是**理解成本**，不是**验证成本**。越好懂、越精美的产物，越容易让人放下戒心。动画里的错误会比文字里的错误更有说服力。
+Why: the ladder lowers the cost of **understanding**, not the cost of **verification**. The clearer and prettier the artifact, the more it lowers the reader's guard. An error in an animation is more convincing than the same error in text.
 
-## 不要做的事
+## Do not
 
-- 不要为了显得用心而升级。第 1 级够用，就停在第 1 级。
-- 不要在图、网页、视频里加文字稿以外的新事实。新事实先写进文字稿。
-- 不要编造数据来让交互页「看起来真实」。示例数据要标明是示例。
+- Climb rungs to look thorough. If rung 1 is enough, stop at rung 1.
+- Add facts in the diagram, page, or video that are not in the rung-1 draft. New facts go into the draft first.
+- Invent data to make a page look real. Label sample data as sample data.

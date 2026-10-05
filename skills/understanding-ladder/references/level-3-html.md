@@ -1,53 +1,53 @@
-# 第 3 级：HTML 交互网页
+# Rung 3: interactive HTML page
 
-## 什么时候用
+## When
 
-内容的核心是「**改一个东西，另一个东西怎么变**」。例如：参数怎么影响曲线，阈值怎么影响误判，几个方案在不同条件下谁更好。
+The core of the content is "**change one thing, see how another changes**": how a parameter shapes a curve, how a threshold changes errors, which option wins under which conditions.
 
-读文字时，读者只能相信作者的描述。拖动滑块时，读者亲眼看到变化，还能试作者没讲到的情况。
+With text, the reader can only trust the author. With a slider, the reader sees the change and can try cases the author never mentioned.
 
-LLM 写前端已经很快。这种页面可以只为这一次理解而做，用完就扔。
+LLMs are good at frontend now. A page like this can be built for one act of understanding and then thrown away.
 
-## 第一步：先写文字稿，再选参数
+## Step 1: draft first, then choose parameters
 
-1. 按 `plain-chinese` 写一段文字稿，讲清机制。
-2. 从文字稿里挑出**最关键的 1–3 个参数**。参数多了，读者不知道先拖哪个。
-3. 写下每个参数的合理范围和默认值。默认值要让图形处在「有意思」的状态。
+1. Write the rung-1 draft that explains the mechanism.
+2. From the draft, pick **the 1–3 parameters that matter most**. More than that and the reader does not know where to start.
+3. Write down a sensible range and default for each. The default should put the plot in an interesting state.
 
-## 第二步：页面结构
+## Step 2: page layout
 
-从上到下：
+Top to bottom:
 
-1. **一句结论**：这个页面要让读者看懂什么。
-2. **交互区**：滑块 + 实时更新的图。滑块旁边显示当前数值和单位。
-3. **文字解释**：文字稿，按 `plain-chinese` 写。
-4. **试试这样拖**：2–3 条具体提示。例如「把利用率从 90% 拖到 95%，看延迟翻了几倍」。
-5. **需要核对**：模型的假设、简化了什么、哪些数字是示例。
+1. **One-line takeaway**: what this page should make clear.
+2. **Interactive area**: sliders + a live plot. Show the current value and unit next to each slider.
+3. **Explanation**: the rung-1 draft.
+4. **Try this**: 2–3 concrete prompts, e.g. "Drag utilization from 90% to 95% and see how many times latency multiplies."
+5. **What to check**: the model's assumptions, what is simplified, which numbers are samples.
 
-## 第三步：技术要求
+## Step 3: technical requirements
 
-- **单个 HTML 文件**，CSS 和 JS 都写在里面。不需要 npm，不需要构建，双击就能打开。
-- 优先用原生 JS 和 `<canvas>` 或 `<svg>` 画图。确实需要图表库时，从 CDN 引入一个（例如 Chart.js），并保证离线时页面的文字部分仍然能读。
-- 拖动时**实时**重算和重画，不要等松开鼠标。
-- 手机上也能用：宽度自适应，滑块够大。
-- 颜色有含义：同一个量在图里和文字里用同一种颜色。
-- 可选：加一个「复制当前参数」按钮，方便读者把一组参数发回给 agent 继续讨论。
+- **One HTML file**, CSS and JS inline. No npm, no build. Double-click to open.
+- Prefer plain JS with `<canvas>` or `<svg>`. If a chart library is truly needed, load one from a CDN (e.g. Chart.js) and keep the text readable offline.
+- Recompute and redraw **live** while dragging, not on release.
+- Works on phones: fluid width, large sliders.
+- Color carries meaning: one quantity, one color, in the plot and in the text.
+- Optional: a "copy current parameters" button so the reader can send a setting back to the agent.
 
-## 第四步：交付
+## Step 4: deliver
 
-1. 把文件保存到当前工作目录，文件名用内容命名，例如 `queue-latency-explainer.html`。
-2. 告诉用户文件路径。环境允许时，用浏览器打开它。
-3. 在聊天里写 2–3 句话：页面讲什么，先拖哪个滑块。
+1. Save the file in the working directory with a descriptive name, e.g. `queue-latency-explainer.html`.
+2. Tell the user the path. Open it in a browser if the environment allows.
+3. In chat, 2–3 sentences: what the page shows and which slider to move first.
 
-## 自检
+## Self-check
 
-- [ ] 不拖任何滑块时，页面也能读懂吗？（默认状态要有意义）
-- [ ] 每个滑块都显示数值和单位吗？
-- [ ] 图的坐标轴有名字和单位吗？
-- [ ] 页面里的术语和文字稿一致吗？
-- [ ] 示例数据标明了「示例」吗？
-- [ ] 计算公式写对了吗？用一组能手算的参数验证一次。
+- [ ] Is the page understandable before touching any slider? (The default state must mean something.)
+- [ ] Does every slider show its value and unit?
+- [ ] Do the axes have names and units?
+- [ ] Do terms match the draft?
+- [ ] Is sample data labeled as sample?
+- [ ] Is the formula right? Check it once with values you can compute by hand.
 
-## 示例 prompt
+## Example prompt
 
-> 把「服务器利用率和延迟的关系」做成一个单文件 HTML 交互页：上面是「利用率」和「平均处理时间」两个滑块，下面是延迟曲线，拖动时实时更新。页面下方用简明中文解释模型，再给 3 条「试试这样拖」的提示。
+> Make a single-file HTML page on server utilization vs latency: two sliders (utilization, mean service time) and a live latency curve. Below it, explain the model in plain language and give three "try this" prompts.
