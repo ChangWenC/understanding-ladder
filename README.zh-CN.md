@@ -51,7 +51,7 @@ npx skills add ChangWenC/understanding-ladder
 | 定义、事实、步骤 | ① 文字 | 中文调用 `plain-chinese`；英文按约 80% ASD-STE100 写 |
 | 流程、因果、状态、组件关系 | ② 图 | Mermaid / SVG，加「怎么读这张图」 |
 | 参数影响结果、方案取舍 | ③ 网页 | 单文件 HTML，带滑块，双击就能打开 |
-| 随时间展开的推导、几何直觉 | ④ 视频 | 分镜 + 旁白 + 工具链（不自己渲染） |
+| 随时间展开的推导、几何直觉 | ④ 视频 | 分镜 + 旁白；[showtime](https://github.com/FavioVazquez/showtime) 0.4.0 起可用 `--from-storyboard` 直接渲染 |
 
 规则：用户指定格式就听用户的；否则选能讲清问题的**最低**一级。每一级都先写简明文字稿，再升级。每个产出末尾都附「需要核对」。
 
@@ -108,7 +108,7 @@ cp -r understanding-ladder/skills/* ~/.claude/skills/
 
 - **好懂 ≠ 已验证。** 阶梯降低的是理解成本，不是验证成本。越好懂、越精美的产物越容易让人放下戒心——动画里的错误比文字里的更有说服力。所以每个产出都附「需要核对」。
 - `plain-chinese` 是给 LLM 用的轻量规则，不是一套完整的写作标准。句长等数字是经验值，没有做过阅读实验。
-- 第 4 级只给分镜和工具链，不渲染视频。
+- 第 4 级只写分镜，渲染交给视频工具。[showtime](https://github.com/FavioVazquez/showtime) 0.4.0 起能直接读取分镜表：`showtime new <模板> <目录> --from-storyboard storyboard.md`，中英文表头都支持。
 - 示例由作者按 skill 跑出并人工核对，数量少，只能说明方向。
 
 ## 和相关项目的关系

@@ -39,7 +39,7 @@ Rules:
 
 | Need | Tool | Notes |
 |---|---|---|
-| Let the coding agent produce the whole video | [showtime](https://github.com/FavioVazquez/showtime) | Open source, renders locally, no API keys. v0.3, early by the author's own description. In Claude Code: `/plugin marketplace add FavioVazquez/showtime` |
+| Let the coding agent produce the whole video | [showtime](https://github.com/FavioVazquez/showtime) | Open source, renders locally, no API keys. Early by the author's own description. **v0.4.0+ reads this skill's storyboard table directly** (see Step 4). In Claude Code: `/plugin marketplace add FavioVazquez/showtime` |
 | Hand-written math animation | [Manim Community](https://www.manim.community/) | Open-source library for 3Blue1Brown-style animation in Python |
 | Free local voice | [Kokoro](https://github.com/hexgrad/kokoro) (ONNX: [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx)) | Local TTS, offline. Listen to the voice for your language first |
 | Paid high-quality voice | [ElevenLabs](https://elevenlabs.io/) | Needs an API key |
@@ -53,11 +53,19 @@ Tools change fast. Open the links and confirm the install steps before recommend
 
 1. The confirmed draft.
 2. The storyboard table.
-3. A prompt ready for the video tool, e.g.:
+3. **If showtime 0.4.0 or later is installed**, save the storyboard table as `storyboard.md` and hand it over directly:
+
+   ```bash
+   showtime new <template> <dir> --from-storyboard storyboard.md
+   ```
+
+   It reads the Markdown table with `Shot | Length | Visual | Narration` or `镜头 | 时长 | 画面 | 旁白` headers, in any column order. Check `showtime --help` for the template names.
+
+4. Otherwise, a prompt ready for the video tool, e.g.:
 
 > Create a 3b1b style video explainer on gradient descent, about 90 seconds. Follow this storyboard exactly: [paste storyboard]. Free local TTS voice. Burn in captions.
 
-4. "What to check": which visuals are illustrative rather than real data; formulas and numbers to verify before rendering.
+5. "What to check": which visuals are illustrative rather than real data; formulas and numbers to verify before rendering.
 
 ## No video tools?
 

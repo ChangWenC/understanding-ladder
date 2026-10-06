@@ -82,8 +82,8 @@ See [references/level-3-html.md](references/level-3-html.md). In short:
 See [references/level-4-video.md](references/level-4-video.md). This skill **does not render video**. It delivers:
 
 - A storyboard: per shot — visual, narration (rung-1 rules), duration.
-- Tool links, e.g. [showtime](https://github.com/FavioVazquez/showtime) (open source, v0.3, early), [Manim](https://www.manim.community/), local TTS [Kokoro](https://github.com/thewh1teagle/kokoro-onnx).
-- A ready-to-paste prompt for those tools. If the user already has them installed, hand the storyboard over.
+- Tool links, e.g. [showtime](https://github.com/FavioVazquez/showtime) (open source, early; v0.4.0+ reads the storyboard table directly), [Manim](https://www.manim.community/), local TTS [Kokoro](https://github.com/thewh1teagle/kokoro-onnx).
+- A ready-to-paste prompt for those tools. With showtime ≥ 0.4.0, the storyboard table goes in as-is: `showtime new <template> <dir> --from-storyboard storyboard.md`.
 
 ## Demo mode: same content, every rung
 

@@ -40,7 +40,7 @@ Classifies the content, recommends the **lowest rung that fully answers**, and p
 | Definition, fact, procedure | 1 · text | ~80% ASD-STE100 in English, `plain-chinese` in Chinese |
 | Process, causality, states, components | 2 · diagram | Mermaid / SVG + "how to read this diagram" |
 | A parameter changes the outcome | 3 · page | Single-file HTML with sliders, opens with a double-click |
-| A derivation that unfolds over time | 4 · video | Storyboard + narration + tool links (does not render) |
+| A derivation that unfolds over time | 4 · video | Storyboard + narration; [showtime](https://github.com/FavioVazquez/showtime) ≥ 0.4.0 renders it with `--from-storyboard` |
 
 Three rules hold on every rung:
 
@@ -108,7 +108,7 @@ Write about 80% of the way to ASD-STE100: one idea per sentence, one term per me
 ## Limits
 
 - **Easier to understand ≠ verified.** The ladder lowers the cost of understanding, not of checking. A polished artifact lowers your guard; an error in an animation is more convincing than in text. Hence "What to check" on every output.
-- Rung 4 delivers a storyboard and toolchain; it does not render video.
+- Rung 4 writes the storyboard; rendering is done by a video tool. [showtime](https://github.com/FavioVazquez/showtime) 0.4.0+ reads the table directly (`showtime new <template> <dir> --from-storyboard storyboard.md`, English or Chinese headers).
 - `plain-chinese` is a lightweight rule set for LLMs, not a full writing standard. Sentence-length numbers are rules of thumb, not tested in reading studies.
 - The examples were produced by following the skills and checked by hand. They show direction, not a benchmark.
 

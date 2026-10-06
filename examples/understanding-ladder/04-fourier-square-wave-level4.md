@@ -43,7 +43,7 @@
 
 | 需求 | 工具 |
 |---|---|
-| 让 coding agent 一条龙生成视频 | [showtime](https://github.com/FavioVazquez/showtime)（开源，本地渲染，0.3 版，仍属早期） |
+| 让 coding agent 一条龙生成视频 | [showtime](https://github.com/FavioVazquez/showtime)（开源，本地渲染，仍属早期；0.4.0 起可用 `showtime new <模板> <目录> --from-storyboard storyboard.md` 直接读取上面的分镜表） |
 | 自己写数学动画 | [Manim Community](https://www.manim.community/) |
 | 免费本地配音 | [Kokoro](https://github.com/hexgrad/kokoro) / [kokoro-onnx](https://github.com/thewh1teagle/kokoro-onnx)（中文音色先试听） |
 | 付费配音 | [ElevenLabs](https://elevenlabs.io/) |
